@@ -288,10 +288,10 @@ if(! $valid) {
     function createColorCode(cc) {
         colorCode = cc;
         if(colorCode == "sRGB_HEX") {
-            $(".colorCode").html('<div style="height: 6em; font-size: 4em; line-height: 6em; margin-top: -3em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span></div>');
+            $(".colorCode").html('<div style="height: 4em; font-size: 4em; line-height: 4em; margin-top: -2em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span></div>');
         }
         if(colorCode == "sRGB_HEX_RGBA") {
-            $(".colorCode").html('<div style="height: 6em; font-size: 4em; line-height: 6em; margin-top: -3em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span><span class="drag hex2" id="A_HEX">FF</span></div>');
+            $(".colorCode").html('<div style="height: 4em; font-size: 4em; line-height: 100%; margin-top: -2em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span><span class="drag hex2" id="A_HEX">FF</span></div>');
         }
         function onMouseDown(obj, x, y) {
             lastMouseX = x;
