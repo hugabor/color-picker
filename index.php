@@ -240,12 +240,12 @@ if(! $valid) {
             onMouseUp();
         });
         $("html")[0].addEventListener('touchmove',function(event){ // for mobile phones
+            event.preventDefault();
             onMouseMove(event.targetTouches[0].pageX, event.targetTouches[0].pageY);
         },false);
         $("html")[0].addEventListener('touchend',function(event){ // for mobile phones
             onMouseUp();
         },false);
-        document.body.addEventListener('touchmove', function(e){ e.preventDefault(); },false); // for mobile
         document.getElementById("b_github").target = "_blank";
         
         $("#b_colorCode").hover(function() {
@@ -343,6 +343,8 @@ if(! $valid) {
         $("#A_HEX").html(decToHex(color[3], 2));
     }
     
+    var textColorWas = 0;
+    
     function updateTextColor() {
         var textColor = 0;
         var lightness = color[0] / 255 * 0.22 + color[1] / 255 * 0.35 + color[2] / 255 * 0.08 + (255 - color[3]) / 255 * 0.35;
@@ -358,7 +360,9 @@ if(! $valid) {
             $(".dragNotice").css("color", light);
             $(".svg_stroke").attr("stroke", light);
             $(".svg_fill").attr("fill", light);
-            $("#b_github").css("background-image", "url('?img=github_light')");
+            if(textColor != textColorWas) {
+                $("#b_github").css("background-image", "url('?img=github_light')");
+            }
             $(".buttonTooltips > span").css("background-image", "url('?img=arrow_light')");
             $(".buttonTooltips > span span").css("background-color", light);
             $(".buttonTooltips > span span").css("color", dark);
@@ -367,11 +371,14 @@ if(! $valid) {
             $(".dragNotice").css("color", dark);
             $(".svg_stroke").attr("stroke", dark);
             $(".svg_fill").attr("fill", dark);
-            $("#b_github").css("background-image", "url('?img=github_dark')");
+            if(textColor != textColorWas) {
+                $("#b_github").css("background-image", "url('?img=github_dark')");
+            }
             $(".buttonTooltips > span").css("background-image", "url('?img=arrow_dark')");
             $(".buttonTooltips > span span").css("background-color", dark);
             $(".buttonTooltips > span span").css("color", light);
         }
+        textColorWas = textColor;
     }
     
     function decToHex(n, l) {
