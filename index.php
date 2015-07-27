@@ -75,16 +75,6 @@ $a = hexdec($a);
 
 
 $cc = $_GET["cc"];
-$valid = false;
-$validList = array("sRGB_HEX", "sRGB_HEX_RGBA");
-for($i = 0; $i < count($validList); $i++) {
-    if($validList[$i] == $cc) {
-        $valid = true;
-    }
-}
-if(! $valid) {
-    $cc = "sRGB_HEX";
-}
 
 ?><!DOCTYPE html>
 <html>
@@ -102,6 +92,10 @@ if(! $valid) {
         min-height: 100%;
         height: 100%;
         cursor: default;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
     }
     body
     {
@@ -133,6 +127,14 @@ if(! $valid) {
         width: 100%;
         height: 100%;
     }
+    div.typeColor
+    {
+        position: absolute;
+        bottom: 50px;
+        left: 20px;
+        font-size: 2em;
+        font-family: Consolas, monospace;
+    }
     div.colorCode
     {
         position: absolute;
@@ -143,6 +145,16 @@ if(! $valid) {
         font-family: Consolas, monospace;
         text-align: center;
     }
+    div.colorCode div.box
+    {
+        display: inline-block;
+        overflow: visible;
+        text-align: left;
+    }
+        .drag
+        {
+            cursor: pointer;
+        }
         .hex2
         {
             margin-left: 0.15em;
@@ -287,11 +299,34 @@ if(! $valid) {
     
     function createColorCode(cc) {
         colorCode = cc;
-        if(colorCode == "sRGB_HEX") {
-            $(".colorCode").html('<div style="height: 4em; font-size: 4em; line-height: 4em; margin-top: -2em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span></div>');
-        }
         if(colorCode == "sRGB_HEX_RGBA") {
-            $(".colorCode").html('<div style="height: 4em; font-size: 4em; line-height: 100%; margin-top: -2em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span><span class="drag hex2" id="A_HEX">FF</span></div>');
+            $(".colorCode .box").css("height", "4em");
+            $(".colorCode .box").css("margin-top", "-2em");
+            $(".colorCode .box").html('<span style="font-size: 4em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span><span class="drag hex2" id="A_HEX">FF</span></span>');
+        } else if(colorCode == "sRGB_rgb") {
+            $(".colorCode .box").css("height", "4em");
+            $(".colorCode .box").css("margin-top", "-2em");
+            $(".colorCode .box").html('<span style="font-size: 4em;">rgb(<span class="drag" id="R">255</span>,<span class="drag" id="G">255</span>,<span class="drag" id="B">255</span>)</span>');
+        } else if(colorCode == "sRGB_rgba") {
+            $(".colorCode .box").css("height", "4em");
+            $(".colorCode .box").css("margin-top", "-2em");
+            $(".colorCode .box").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R">255</span>,<span class="drag" id="G">255</span>,<span class="drag" id="B">255</span>,<span class="drag" id="A">255</span>)</span>');
+        } else if(colorCode == "sRGB_rgb_fl") {
+            $(".colorCode .box").css("height", "4em");
+            $(".colorCode .box").css("margin-top", "-2em");
+            $(".colorCode .box").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R_fl">1</span>,<span class="drag" id="G_fl">1</span>,<span class="drag" id="B_fl">1</span>)</span>');
+        } else if(colorCode == "sRGB_rgba_fl") {
+            $(".colorCode .box").css("height", "4em");
+            $(".colorCode .box").css("margin-top", "-2em");
+            $(".colorCode .box").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R_fl">1</span>,<span class="drag" id="G_fl">1</span>,<span class="drag" id="B_fl">1</span>,<span class="drag" id="A_fl">1</span>)</span>');
+        } else if(colorCode == "sRGB_rgba_css") {
+            $(".colorCode .box").css("height", "4em");
+            $(".colorCode .box").css("margin-top", "-2em");
+            $(".colorCode .box").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R">255</span>,<span class="drag" id="G">255</span>,<span class="drag" id="B">255</span>,<span class="drag" id="A_fl">1</span>)</span>');
+        } else { // "sRGB_HEX"
+            $(".colorCode .box").css("height", "4em");
+            $(".colorCode .box").css("margin-top", "-2em");
+            $(".colorCode .box").html('<span style="font-size: 4em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span></span>');
         }
         function onMouseDown(obj, x, y) {
             lastMouseX = x;
@@ -311,22 +346,22 @@ if(! $valid) {
     
     function parseMousePos(dx, dy) {
         var id = elem.attr("id");
-        if(id == "R_HEX"){
+        if(id == "R_HEX" || id == "R" || id == "R_fl"){
             color[0] += dy;
             if(color[0] > 255) { color[0] = 255; }
             if(color[0] < 0) { color[0] = 0; }
         }
-        if(id == "G_HEX"){
+        if(id == "G_HEX" || id == "G" || id == "G_fl"){
             color[1] += dy;
             if(color[1] > 255) { color[1] = 255; }
             if(color[1] < 0) { color[1] = 0; }
         }
-        if(id == "B_HEX"){
+        if(id == "B_HEX" || id == "B" || id == "B_fl"){
             color[2] += dy;
             if(color[2] > 255) { color[2] = 255; }
             if(color[2] < 0) { color[2] = 0; }
         }
-        if(id == "A_HEX"){
+        if(id == "A_HEX" || id == "A" || id == "A_fl"){
             color[3] += dy;
             if(color[3] > 255) { color[3] = 255; }
             if(color[3] < 0) { color[3] = 0; }
@@ -341,6 +376,15 @@ if(! $valid) {
         $("#G_HEX").html(decToHex(color[1], 2));
         $("#B_HEX").html(decToHex(color[2], 2));
         $("#A_HEX").html(decToHex(color[3], 2));
+        $("#R").html(color[0]);
+        $("#G").html(color[1]);
+        $("#B").html(color[2]);
+        $("#A").html(color[3]);
+        $("#R_fl").html((color[0] / 255).toFixed(3));
+        $("#G_fl").html((color[1] / 255).toFixed(3));
+        $("#B_fl").html((color[2] / 255).toFixed(3));
+        $("#A_fl").html((color[3] / 255).toFixed(3));
+        $("title").text("Color Picker ~ " + $(".colorCode .box").text());
     }
     
     var textColorWas = 0;
@@ -356,6 +400,7 @@ if(! $valid) {
         var dark = "#171516";
         
         if(textColor > 0) {
+            $(".typeColor").css("color", light);
             $(".colorCode").css("color", light);
             $(".dragNotice").css("color", light);
             $(".svg_stroke").attr("stroke", light);
@@ -367,6 +412,7 @@ if(! $valid) {
             $(".buttonTooltips > span span").css("background-color", light);
             $(".buttonTooltips > span span").css("color", dark);
         } else {
+            $(".typeColor").css("color", dark);
             $(".colorCode").css("color", dark);
             $(".dragNotice").css("color", dark);
             $(".svg_stroke").attr("stroke", dark);
@@ -408,8 +454,10 @@ if(! $valid) {
 </head>
 <body>
     <div class="color"></div>
-    <div class="color2"></div>
-    <div class="colorCode"></div>
+    <div class="typeColor"></div>
+    <div class="colorCode">
+        <div class="box"></div>
+    </div>
     <div class="dragNotice">Drag the color values to change them</div>
     <div class="buttons">
         <a id="b_colorCode">
