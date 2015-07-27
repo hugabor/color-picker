@@ -362,8 +362,8 @@ if(! $valid) {
             $(".svg_fill").attr("fill", light);
             if(textColor != textColorWas) {
                 $("#b_github").css("background-image", "url('?img=github_light')");
+                $(".buttonTooltips > span").css("background-image", "url('?img=arrow_light')");
             }
-            $(".buttonTooltips > span").css("background-image", "url('?img=arrow_light')");
             $(".buttonTooltips > span span").css("background-color", light);
             $(".buttonTooltips > span span").css("color", dark);
         } else {
@@ -373,8 +373,8 @@ if(! $valid) {
             $(".svg_fill").attr("fill", dark);
             if(textColor != textColorWas) {
                 $("#b_github").css("background-image", "url('?img=github_dark')");
+                $(".buttonTooltips > span").css("background-image", "url('?img=arrow_dark')");
             }
-            $(".buttonTooltips > span").css("background-image", "url('?img=arrow_dark')");
             $(".buttonTooltips > span span").css("background-color", dark);
             $(".buttonTooltips > span span").css("color", light);
         }
