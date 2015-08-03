@@ -72,8 +72,6 @@ $g = hexdec($g);
 $b = hexdec($b);
 $a = hexdec($a);
 
-
-
 $cc = $_GET["cc"];
 
 ?><!DOCTYPE html>
@@ -387,44 +385,39 @@ $cc = $_GET["cc"];
         $("title").text("Color Picker ~ " + $(".colorCode .box").text());
     }
     
-    var textColorWas = 0;
+    var textColor = 0; // 0 = dark ; 1 = light
+    var light = "#ffffff";
+    var dark = "#171516";
     
     function updateTextColor() {
-        var textColor = 0;
+        var newTextColor = 0;
         var lightness = color[0] / 255 * 0.22 + color[1] / 255 * 0.35 + color[2] / 255 * 0.08 + (255 - color[3]) / 255 * 0.35;
         if(lightness <= 0.18) {
-            textColor = 1;
+            newTextColor = 1;
         }
         
-        var light = "#ffffff";
-        var dark = "#171516";
-        
-        if(textColor > 0) {
-            $(".typeColor").css("color", light);
-            $(".colorCode").css("color", light);
-            $(".dragNotice").css("color", light);
+        if(newTextColor > 0) {
+            $(".colorChangeText").css("color", light);
             $(".svg_stroke").attr("stroke", light);
             $(".svg_fill").attr("fill", light);
-            if(textColor != textColorWas) {
+            if(newTextColor != textColor) {
                 $("#b_github").css("background-image", "url('?img=github_light')");
                 $(".buttonTooltips > span").css("background-image", "url('?img=arrow_light')");
             }
             $(".buttonTooltips > span span").css("background-color", light);
             $(".buttonTooltips > span span").css("color", dark);
         } else {
-            $(".typeColor").css("color", dark);
-            $(".colorCode").css("color", dark);
-            $(".dragNotice").css("color", dark);
+            $(".colorChangeText").css("color", dark);
             $(".svg_stroke").attr("stroke", dark);
             $(".svg_fill").attr("fill", dark);
-            if(textColor != textColorWas) {
+            if(newTextColor != textColor) {
                 $("#b_github").css("background-image", "url('?img=github_dark')");
                 $(".buttonTooltips > span").css("background-image", "url('?img=arrow_dark')");
             }
             $(".buttonTooltips > span span").css("background-color", dark);
             $(".buttonTooltips > span span").css("color", light);
         }
-        textColorWas = textColor;
+        textColor = newTextColor;
     }
     
     function decToHex(n, l) {
@@ -454,11 +447,11 @@ $cc = $_GET["cc"];
 </head>
 <body>
     <div class="color"></div>
-    <div class="typeColor"></div>
-    <div class="colorCode">
+    <div class="typeColor colorChangeText"></div>
+    <div class="colorCode colorChangeText">
         <div class="box"></div>
     </div>
-    <div class="dragNotice">Drag the color values to change them</div>
+    <div class="dragNotice colorChangeText">Drag the color values to change them</div>
     <div class="buttons">
         <a id="b_colorCode">
             <svg width="32" height="32">
