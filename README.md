@@ -1,7 +1,5 @@
 # color-picker
 
-Intended to be an easy-to-use tool that lets you explore colors in all different color spaces and color codes.
+Intended to be an easy-to-use tool to quickly pick a color for your project
 
-# License
-
-[MIT License](LICENSE)
+### [MIT License](LICENSE)

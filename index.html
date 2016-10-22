@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Color Picker</title>
+<style>
+    html, body
+    {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        overflow: hidden;
+        min-height: 100%;
+        height: 100%;
+        cursor: default;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+    }
+    body
+    {
+        font-family: Tahoma, Geneva, sans-serif;
+        font-family: "Trebuchet MS", Helvetica, sans-serif;
+        font-size: 100%;
+        background-color: #ffffff;
+        background-attachment: fixed;
+        background-image: url("./bg_transparency.png");
+    }
+    a
+    {
+        outline: none;
+    }
+    div
+    {
+        margin: 0;
+        border: 0;
+        padding: 0;
+        overflow: hidden;
+        cursor: default;
+    }
+    select
+    {
+        font-family: Georgia, serif;
+        outline: none;
+    }
+    div.color
+    {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+    div.typeColor
+    {
+        position: absolute;
+        bottom: 50px;
+        left: 20px;
+        font-size: 2em;
+        font-family: Consolas, monospace;
+    }
+    div.colorRep
+    {
+        position: absolute;
+        top: 40%;
+        height: 0;
+        overflow: visible;
+        width: 100%;
+        font-family: Consolas, monospace;
+        text-align: center;
+    }
+    div.colorRep div.main
+    {
+        display: inline-block;
+        overflow: visible;
+        text-align: left;
+    }
+        .drag
+        {
+            cursor: pointer;
+        }
+        .hex2
+        {
+            margin-left: 0.15em;
+        }
+    div.dragNotice
+    {
+        position: absolute;
+        top: 1em;
+        left: 0;
+        width: 100%;
+        text-align: center;
+    }
+    div.buttons
+    {
+        position: absolute;
+        top: 1em;
+        right: 0;
+    }
+    div.buttons a
+    {
+        margin: 0;
+        border: 0;
+        padding: 0 10px 10px 10px;
+        display: block;
+        text-decoration: none;
+        cursor: pointer;
+        text-align: right;
+    }
+
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
+<script>
+
+    var colorCode = "sRGB_rgba";
+    var color = [255, 255, 255, 255];
+
+    var query = window.location.search.substring(1);
+    var params = query.split("&");
+    for (var i = 0; i < params.length; ++i) {
+        param = params[i].split("=");
+        if (param.length == 2) {
+            if (param[0] == "r") color[0] = parseInt(param[1]);
+            if (param[0] == "g") color[1] = parseInt(param[1]);
+            if (param[0] == "b") color[2] = parseInt(param[1]);
+            if (param[0] == "a") color[3] = parseInt(param[1]);
+        }
+    }
+
+    var lastMouseX = -1;
+    var lastMouseY = -1;
+    var elem;
+    var dragging = false;
+    var faded = false;
+
+    $(document).ready(function() {
+        createColorCode(colorCode);
+        updateDisplay();
+        function onMouseMove(x, y) {
+            if(dragging) {
+                if(!faded) {
+                    $(".dragNotice").fadeOut(2500);
+                    faded = true;
+                }
+                deselect();
+                parseMousePos(x - lastMouseX, lastMouseY - y);
+                lastMouseX = x;
+                lastMouseY = y;
+            }
+        }
+        function onMouseUp() {
+            dragging = false;
+        }
+        $(document).mousemove(function(event) {
+            onMouseMove(event.pageX, event.pageY);
+        });
+        $(document).mouseup(function(event) {
+            onMouseUp();
+        });
+        $("html")[0].addEventListener('touchmove',function(event){ // for mobile phones
+            event.preventDefault();
+            onMouseMove(event.targetTouches[0].pageX, event.targetTouches[0].pageY);
+        },false);
+        $("html")[0].addEventListener('touchend',function(event){ // for mobile phones
+            onMouseUp();
+        },false);
+    });
+
+    function createColorCode(cc) {
+        colorCode = cc;
+        if(colorCode == "sRGB_HEX_RGBA") {
+            $(".colorRep .main").css("height", "4em");
+            $(".colorRep .main").css("margin-top", "-2em");
+            $(".colorRep .main").html('<span style="font-size: 4em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span><span class="drag hex2" id="A_HEX">FF</span></span>');
+        } else if(colorCode == "sRGB_rgb") {
+            $(".colorRep .main").css("height", "4em");
+            $(".colorRep .main").css("margin-top", "-2em");
+            $(".colorRep .main").html('<span style="font-size: 4em;">rgb(<span class="drag" id="R">255</span>,<span class="drag" id="G">255</span>,<span class="drag" id="B">255</span>)</span>');
+        } else if(colorCode == "sRGB_rgba") {
+            $(".colorRep .main").css("height", "4em");
+            $(".colorRep .main").css("margin-top", "-2em");
+            $(".colorRep .main").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R">255</span>,<span class="drag" id="G">255</span>,<span class="drag" id="B">255</span>,<span class="drag" id="A">255</span>)</span>');
+        } else if(colorCode == "sRGB_rgb_fl") {
+            $(".colorRep .main").css("height", "4em");
+            $(".colorRep .main").css("margin-top", "-2em");
+            $(".colorRep .main").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R_fl">1</span>,<span class="drag" id="G_fl">1</span>,<span class="drag" id="B_fl">1</span>)</span>');
+        } else if(colorCode == "sRGB_rgba_fl") {
+            $(".colorRep .main").css("height", "4em");
+            $(".colorRep .main").css("margin-top", "-2em");
+            $(".colorRep .main").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R_fl">1</span>,<span class="drag" id="G_fl">1</span>,<span class="drag" id="B_fl">1</span>,<span class="drag" id="A_fl">1</span>)</span>');
+        } else if(colorCode == "sRGB_rgba_css") {
+            $(".colorRep .main").css("height", "4em");
+            $(".colorRep .main").css("margin-top", "-2em");
+            $(".colorRep .main").html('<span style="font-size: 4em;">rgba(<span class="drag" id="R">255</span>,<span class="drag" id="G">255</span>,<span class="drag" id="B">255</span>,<span class="drag" id="A_fl">1</span>)</span>');
+        } else { // "sRGB_HEX"
+            $(".colorRep .main").css("height", "4em");
+            $(".colorRep .main").css("margin-top", "-2em");
+            $(".colorRep .main").html('<span style="font-size: 4em;">#<span class="drag hex2" id="R_HEX">FF</span><span class="drag hex2" id="G_HEX">FF</span><span class="drag hex2" id="B_HEX">FF</span></span>');
+        }
+        function onMouseDown(obj, x, y) {
+            lastMouseX = x;
+            lastMouseY = y;
+            elem = obj;
+            dragging = true;
+        }
+        $(".drag").each(function() {
+            $(this).mousedown(function(event) {
+                onMouseDown($(this), event.pageX, event.pageY);
+            });
+            $(this)[0].addEventListener('touchstart',function(event){ // for mobile phones
+                onMouseDown($(this), event.targetTouches[0].pageX, event.targetTouches[0].pageY);
+            },false);
+        });
+    }
+
+    function parseMousePos(dx, dy) {
+        dx = Math.floor(dx);
+        dy = Math.floor(dy);
+        var id = elem.attr("id");
+        if(id == "R_HEX" || id == "R" || id == "R_fl"){
+            color[0] += dy;
+            if(color[0] > 255) { color[0] = 255; }
+            if(color[0] < 0) { color[0] = 0; }
+        }
+        if(id == "G_HEX" || id == "G" || id == "G_fl"){
+            color[1] += dy;
+            if(color[1] > 255) { color[1] = 255; }
+            if(color[1] < 0) { color[1] = 0; }
+        }
+        if(id == "B_HEX" || id == "B" || id == "B_fl"){
+            color[2] += dy;
+            if(color[2] > 255) { color[2] = 255; }
+            if(color[2] < 0) { color[2] = 0; }
+        }
+        if(id == "A_HEX" || id == "A" || id == "A_fl"){
+            color[3] += dy;
+            if(color[3] > 255) { color[3] = 255; }
+            if(color[3] < 0) { color[3] = 0; }
+        }
+        updateDisplay();
+    }
+
+    function updateDisplay() {
+        $(".color").css("background-color", "rgba(" + color[0] + "," + color[1] + "," + color[2] + "," + (color[3] / 255) + ")");
+        updateTextColor();
+        $("#R_HEX").html(decToHex(color[0], 2));
+        $("#G_HEX").html(decToHex(color[1], 2));
+        $("#B_HEX").html(decToHex(color[2], 2));
+        $("#A_HEX").html(decToHex(color[3], 2));
+        $("#R").html(color[0]);
+        $("#G").html(color[1]);
+        $("#B").html(color[2]);
+        $("#A").html(color[3]);
+        $("#R_fl").html((color[0] / 255).toFixed(3));
+        $("#G_fl").html((color[1] / 255).toFixed(3));
+        $("#B_fl").html((color[2] / 255).toFixed(3));
+        $("#A_fl").html((color[3] / 255).toFixed(3));
+        $("title").text("Color Picker ~ " + $(".colorRep .main").text());
+    }
+
+    function updateTextColor() {
+        var newTextColor = 0;
+        var lightness = color[0] / 255 * 0.22 + color[1] / 255 * 0.35 + color[2] / 255 * 0.08 + (255 - color[3]) / 255 * 0.35;
+        if(lightness <= 0.18) {
+            newTextColor = 1;
+        }
+
+        var light = "#ffffff";
+        var dark = "#171516";
+
+        if(newTextColor > 0) {
+            $(".colorChangeText").css("color", light);
+        } else {
+            $(".colorChangeText").css("color", dark);
+        }
+    }
+
+    function decToHex(n, l) {
+        return leadingZeros(n.toString(16), l).toUpperCase();
+    }
+
+    function leadingZeros(num, length) {
+        while(num.length < length) {
+            num = "0" + num;
+        }
+        return num;
+    }
+
+    function deselect() {
+        if (window.getSelection) {
+            var selection = window.getSelection();
+            selection.removeAllRanges();
+        }
+        else {
+            if (document.selection.createRange) {
+                var range = document.selection.createRange();
+                document.selection.empty();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function getURL() {
+
+    }
+
+    function copyToClipboard() {
+
+    }
+
+    function toggleFullScreen() {
+
+    }
+
+</script>
+</head>
+<body>
+    <div class="color">
+        <div class="typeColor colorChangeText"></div> <!-- typeColor as in typing on the keyboard -->
+        <div class="colorRep colorChangeText">
+            <div class="main"></div>
+            <div class="extra"></div>
+        </div>
+    </div>
+    <div class="buttons">
+        <a class="colorChangeText" href="javascript:void(0);" onclick="getURL()">Get URL for this color</a>
+        <a class="colorChangeText" href="javascript:void(0);" onclick="copyToClipboard()">Copy to clipboard</a>
+        <a class="colorChangeText" href="javascript:void(0);" onclick="toggleFullscreen()">Toggle fullscreen</a>
+        <a class="colorChangeText" href="https://github.com/hugabor/color-picker">GitHub</a>
+    </div>
+    <div class="dragNotice colorChangeText">Drag the color values to change them</div>
+</body>
+</html>
